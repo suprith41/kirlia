@@ -33,7 +33,7 @@ async function handleMessage(message) {
 
     case "KIRLIA_HIGHLIGHT_SUSPICIOUS_TEXT": {
       const analysis = await getOrRunAnalysis();
-      const highlightedCount = highlightSuspiciousText(analysis.flaggedSentences ?? []);
+      const highlightedCount = highlightAnalysisFindings(analysis);
       return {
         ok: true,
         highlightedCount,
@@ -48,6 +48,7 @@ async function handleMessage(message) {
       const { runFullAnalysis } = await loadDetectors();
       const analysis = runFullAnalysis({
         text: message?.payload?.text ?? "",
+        html: "",
         url: window.location.href,
         title: document.title,
         domain: window.location.hostname,
@@ -81,6 +82,7 @@ async function getOrRunAnalysis() {
   const { runFullAnalysis } = await loadDetectors();
   const analysis = runFullAnalysis({
     text: getPageText(),
+    html: getPageHtml(),
     url: window.location.href,
     title: document.title,
     domain: window.location.hostname,
@@ -115,32 +117,53 @@ async function loadDetectors() {
 }
 
 function getPageText() {
-  return (document.body?.innerText || "").replace(/\s+/g, " ").trim().slice(0, 50000);
+  return (document.body?.innerText || "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+    .slice(0, 50000);
 }
 
-function highlightSuspiciousText(flaggedSentences) {
-  clearHighlights();
-  const snippets = flaggedSentences
-    .map((item) => item?.sentence?.trim())
-    .filter((sentence) => sentence && sentence.length > 24)
-    .slice(0, 8);
+function getPageHtml() {
+  return (document.body?.innerHTML || "").slice(0, 120000);
+}
 
-  let highlightedCount = 0;
-  snippets.forEach((snippet) => {
-    highlightedCount += highlightSnippet(snippet);
-  });
+function highlightAnalysisFindings(analysis) {
+  clearHighlights();
+  const suspiciousSnippets = (analysis.flaggedSentences ?? [])
+    .map((item) => item?.sentence?.trim())
+    .filter(isHighlightableSentence)
+    .slice(0, 8);
+  const citedSnippets = (analysis.citationAnalysis?.citedSentences ?? [])
+    .filter(isHighlightableSentence)
+    .slice(0, 8);
+  const uncitedSnippets = (analysis.citationAnalysis?.uncitedClaimSentences ?? [])
+    .filter(isHighlightableSentence)
+    .slice(0, 10);
+
+  let highlightedCount = highlightSnippets(citedSnippets, "citation");
+  highlightedCount += highlightSnippets(uncitedSnippets, "uncited");
+  highlightedCount += highlightSnippets(suspiciousSnippets, "suspicious");
 
   analysisState.highlighted = highlightedCount > 0;
   renderMiniToast(
     highlightedCount
-      ? `Highlighted ${highlightedCount} suspicious passage(s).`
+      ? `Highlighted ${highlightedCount} Kirlia passage(s): green cited, yellow uncited, red suspicious.`
       : "No matching suspicious text found to highlight.",
   );
   console.log("[Kirlia content] Highlight result:", highlightedCount);
   return highlightedCount;
 }
 
-function highlightSnippet(snippet) {
+function highlightSnippets(snippets, type) {
+  return snippets.reduce((count, snippet) => count + highlightSnippet(snippet, type), 0);
+}
+
+function isHighlightableSentence(sentence) {
+  return sentence && sentence.length > 24;
+}
+
+function highlightSnippet(snippet, type = "suspicious") {
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       if (!node.nodeValue?.trim()) {
@@ -170,14 +193,26 @@ function highlightSnippet(snippet) {
     range.setEnd(node, Math.min(text.length, index + snippet.length));
     const mark = document.createElement("mark");
     mark.dataset.kirliaHighlight = "true";
-    mark.style.background = "rgba(239, 68, 68, 0.3)";
+    mark.dataset.kirliaHighlightType = type;
+    mark.style.background = getHighlightColor(type);
     mark.style.color = "inherit";
     mark.style.padding = "0 0.08em";
+    mark.style.borderRadius = "0.18em";
     range.surroundContents(mark);
     return 1;
   }
 
   return 0;
+}
+
+function getHighlightColor(type) {
+  if (type === "citation") {
+    return "rgba(34, 197, 94, 0.28)";
+  }
+  if (type === "uncited") {
+    return "rgba(250, 204, 21, 0.32)";
+  }
+  return "rgba(239, 68, 68, 0.3)";
 }
 
 function clearHighlights() {
@@ -219,6 +254,8 @@ function renderReportOverlay(analysis) {
         <p><strong>AI detection:</strong> ${analysis.scores.ai}%</p>
         <p><strong>Manipulation:</strong> ${analysis.scores.manipulation}%</p>
         <p><strong>Domain trust risk:</strong> ${analysis.scores.trust}%</p>
+        <p><strong>Source transparency:</strong> ${analysis.scores.sourceTransparency}%</p>
+        <p><strong>Sources:</strong> ${escapeHtml(analysis.citationAnalysis?.summary ?? "No citation data.")}</p>
         <h3>Issues</h3>
         <ul>${(analysis.issues || []).map((issue) => `<li>${escapeHtml(issue)}</li>`).join("")}</ul>
       </div>

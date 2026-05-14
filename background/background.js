@@ -344,7 +344,16 @@ function getBadgeColor(score) {
 }
 
 function averageScores(scores = {}) {
-  const values = Object.values(scores).map((value) => Number(value) || 0);
+  const values = [
+    scores.ai,
+    scores.manipulation,
+    scores.trust,
+    typeof scores.sourceTransparency === "number"
+      ? 100 - scores.sourceTransparency
+      : undefined,
+  ]
+    .filter((value) => typeof value !== "undefined")
+    .map((value) => Number(value) || 0);
   if (!values.length) {
     return 0;
   }

@@ -13,9 +13,21 @@
           <p class="brand">KIRLIA</p>
           <p class="subtitle">AI & Fake News Detector</p>
         </div>
-        <div class="page-status" id="page-status">
-          <span class="status-dot"></span>
-          <span id="page-status-text">Scanning page</span>
+        <div class="topbar-actions">
+          <div class="page-status" id="page-status">
+            <span class="status-dot"></span>
+            <span id="page-status-text">Scanning page</span>
+          </div>
+          <button
+            class="mode-toggle"
+            id="theme-toggle"
+            type="button"
+            aria-label="Switch to light mode"
+            aria-pressed="true"
+          >
+            <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
+            <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+          </button>
         </div>
       </header>
 
@@ -24,9 +36,6 @@
           <p class="eyebrow">Current page status</p>
           <h1 class="headline" id="headline">Mixed credibility signals detected</h1>
         </div>
-        <button class="mode-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
-          <span aria-hidden="true">◐</span>
-        </button>
       </section>
 
       <section class="dashboard" aria-label="Score dashboard">
@@ -74,6 +83,21 @@
           <h2>Domain Trust Score</h2>
           <p id="trust-score-copy">Historical reliability indicators are below threshold.</p>
         </article>
+
+        <article class="score-card safe" data-score-card="sourceTransparency">
+          <div
+            class="score-ring"
+            id="source-transparency-score-ring"
+            style="--score: 0; --ring-color: var(--safe);"
+            aria-label="Source Transparency Score 0 percent"
+          >
+            <div class="score-ring-inner">
+              <span class="score-value" id="source-transparency-score-value">0%</span>
+            </div>
+          </div>
+          <h2>Source Transparency</h2>
+          <p id="source-transparency-score-copy">Checking citation coverage and source quality.</p>
+        </article>
       </section>
 
       <section class="panel">
@@ -88,9 +112,45 @@
         </details>
       </section>
 
+      <section class="panel timeline-panel">
+        <details class="emotion-timeline" open>
+          <summary>
+            <span>📊 Emotion Timeline</span>
+            <span class="timeline-pattern" id="timeline-pattern">Scanning</span>
+          </summary>
+          <div class="timeline-chart-wrap">
+            <canvas
+              id="emotion-timeline-chart"
+              width="340"
+              height="180"
+              aria-label="Line chart of emotional intensity by sentence"
+              role="img"
+            ></canvas>
+            <div class="timeline-tooltip" id="timeline-tooltip" role="status" aria-live="polite"></div>
+          </div>
+          <p class="timeline-summary" id="timeline-summary">
+            Waiting for article emotion analysis.
+          </p>
+        </details>
+      </section>
+
+      <section class="panel fingerprint-panel">
+        <div class="fingerprint-card">
+          <div>
+            <p class="eyebrow">Writing Style Fingerprint</p>
+            <p class="fingerprint-summary" id="fingerprint-summary">
+              Compare this article against your last 5 local fingerprints.
+            </p>
+          </div>
+          <button class="action-button fingerprint-button" id="compare-fingerprint-button" type="button">
+            Compare with Previous
+          </button>
+        </div>
+      </section>
+
       <section class="actions" aria-label="Actions">
         <button class="action-button action-primary" id="highlight-button" type="button">
-          Highlight Suspicious Text
+          Highlight Claims & Sources
         </button>
         <button class="action-button action-secondary" id="report-button" type="button">
           View Full Report
@@ -102,6 +162,7 @@
         <button class="icon-button" id="info-button" type="button" aria-label="Information">ⓘ</button>
       </footer>
 
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
       <script src="popup.js" type="module"></script>
     </main>
   </body>

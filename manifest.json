@@ -34,6 +34,7 @@
     {
       "resources": [
         "utils/detectors.js",
+        "utils/fingerprint.js",
         "utils/patterns.js"
       ],
       "matches": [

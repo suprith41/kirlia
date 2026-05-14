@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kirlia</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="popup theme-dark">
+      <header class="topbar">
+        <div>
+          <p class="brand">KIRLIA</p>
+          <p class="subtitle">AI & Fake News Detector</p>
+        </div>
+        <div class="page-status" id="page-status">
+          <span class="status-dot"></span>
+          <span id="page-status-text">Scanning page</span>
+        </div>
+      </header>
+
+      <section class="hero-card">
+        <div>
+          <p class="eyebrow">Current page status</p>
+          <h1 class="headline" id="headline">Mixed credibility signals detected</h1>
+        </div>
+        <button class="mode-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <span aria-hidden="true">◐</span>
+        </button>
+      </section>
+
+      <section class="dashboard" aria-label="Score dashboard">
+        <article class="score-card safe" data-score-card="ai">
+          <div
+            class="score-ring"
+            id="ai-score-ring"
+            style="--score: 0; --ring-color: var(--safe);"
+            aria-label="AI Detection Score 28 percent"
+          >
+            <div class="score-ring-inner">
+              <span class="score-value" id="ai-score-value">0%</span>
+            </div>
+          </div>
+          <h2>AI Detection Score</h2>
+          <p id="ai-score-copy">Low likelihood of synthetic phrasing patterns.</p>
+        </article>
+
+        <article class="score-card caution" data-score-card="manipulation">
+          <div
+            class="score-ring"
+            id="manipulation-score-ring"
+            style="--score: 0; --ring-color: var(--caution);"
+            aria-label="Manipulation Score 51 percent"
+          >
+            <div class="score-ring-inner">
+              <span class="score-value" id="manipulation-score-value">0%</span>
+            </div>
+          </div>
+          <h2>Manipulation Score</h2>
+          <p id="manipulation-score-copy">Emotionally loaded language appears in key passages.</p>
+        </article>
+
+        <article class="score-card danger" data-score-card="trust">
+          <div
+            class="score-ring"
+            id="trust-score-ring"
+            style="--score: 0; --ring-color: var(--danger);"
+            aria-label="Domain Trust Score 72 percent"
+          >
+            <div class="score-ring-inner">
+              <span class="score-value" id="trust-score-value">0%</span>
+            </div>
+          </div>
+          <h2>Domain Trust Score</h2>
+          <p id="trust-score-copy">Historical reliability indicators are below threshold.</p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <details class="issues" open>
+          <summary>
+            <span>Issues Found</span>
+            <span class="issue-count" id="issue-count">0</span>
+          </summary>
+          <ul class="issues-list" id="issues-list">
+            <li>Waiting for page analysis.</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="actions" aria-label="Actions">
+        <button class="action-button action-primary" id="highlight-button" type="button">
+          Highlight Suspicious Text
+        </button>
+        <button class="action-button action-secondary" id="report-button" type="button">
+          View Full Report
+        </button>
+      </section>
+
+      <footer class="footer">
+        <button class="icon-button" id="settings-button" type="button" aria-label="Settings">⚙</button>
+        <button class="icon-button" id="info-button" type="button" aria-label="Information">ⓘ</button>
+      </footer>
+
+      <script src="popup.js" type="module"></script>
+    </main>
+  </body>
+</html>
